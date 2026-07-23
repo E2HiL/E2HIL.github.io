@@ -1,388 +1,348 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="description" content="E2HiL">
-  <meta name="keywords" content="Multi-task Robotic Bimanual Manipulation, Plug-and-play, Skill Learning">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>E2HiL: Entropy-Guided Sample Selection for Efficient Real-World Human-in-the-Loop Reinforcement Learning</title>
+  <meta name="description" content="E2HiL is a sample-efficient real-world human-in-the-loop RL framework that actively selects informative samples via entropy-guided influence functions, achieving higher success with fewer human interventions. Published in IEEE Robotics and Automation Letters (RA-L) 2026." />
+  <meta name="keywords" content="Human-in-the-Loop Reinforcement Learning, Robotic Manipulation, Sample Selection, Policy Entropy, Real-World RL" />
 
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-        rel="stylesheet">
-
-  <link rel="stylesheet" href="./static/css/bulma.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
-
-  <link rel="stylesheet" href="./static/css/index.css">
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script src="./static/js/bulma-carousel.min.js"></script>
-  <script src="./static/js/bulma-slider.min.js"></script>
-  <script src="./static/js/index.js"></script>
-
-  <!-- <link rel="icon" href="./favicon.ico"> -->
-  <link rel="icon" href="/favicon.ico?version=2" type="image/x-icon">
-
-  <meta property="og:site_name" content="E2HiL" />
-  <meta property="og:type" content="video.other" />
-  <meta property="og:title" content="E2HiL" />
-  <meta property="og:description" content="by xxx" />
-  <meta property="og:url" content="https://E2HiL.github.io/" />
-  <meta property="og:image" content="https://E2HiL.github.io/static/images/fong.png" />
-  <meta property="og:image:secure" content="https://E2HiL.github.io/static/images/fong.png" />
-  <meta property="og:video" content=" " />
-  <meta property="og:video:secure" content=" " />
-  <meta property="og:image:width" content="1280" />
-  <meta property="og:image:height" content="720" />
-
-  <meta property="article:publisher" content="https://E2HiL.github.io" />
+  <!-- Social / Open Graph -->
+  <meta property="og:title" content="E2HiL: Entropy-Guided Sample Selection for Efficient Real-World Human-in-the-Loop Reinforcement Learning" />
+  <meta property="og:description" content="A sample-efficient real-world HiL-RL framework — higher success with fewer human interventions. IEEE RA-L 2026." />
+  <meta property="og:image" content="resources/method/teaser1201.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://e2hil.github.io/" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="E2HiL" />
-  <meta name="twitter:description" content="by xxx" />
-  <meta name="twitter:url" content="https://E2HiL.github.io/" />
-  <meta name="twitter:image" content="https://E2HiL.github.io/static/images/preview.gif" />
-  <meta name="twitter:site" content="" /> <!-- 如果你有新的Twitter账户，也应该更新这里 -->
-  <meta name="twitter:card" content="player" />
-  <meta name="twitter:player" content="https://www.youtube.com" />
-  <meta name="twitter:player:width" content="1280" />
-  <meta name="twitter:player:height" content="720" />
-  <!-- Existing links and scripts -->
-  <link href="https://fonts.googleapis.com/css?family=Permanent+Marker" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-  <style>
-    /* body, html {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-    } */
-    #cover-image {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: url('./static/images/fullscreen-image.jpg') no-repeat center center fixed;
-      background-size: cover;
-      z-index: 9999;
-    }
-    
-    .video-title {
-      font-family: 'Fredoka One', cursive;
-      font-size: 20px;
-      color: #000; /* Choose a color that stands out on your video background */
-      margin-bottom: 8px;
-    }
-    .scroll-container {
-      overflow-x: auto;
-      overflow-y: hidden;
-      white-space: nowrap;
-    }
+  <meta name="twitter:title" content="E2HiL: Entropy-Guided Sample Selection for Efficient Real-World HiL-RL" />
+  <meta name="twitter:description" content="IEEE RA-L 2026 — higher success with fewer human interventions." />
+  <meta name="twitter:image" content="resources/method/teaser1201.png" />
 
-    .columns.is-multiline.is-mobile {
-      display: flex;
-      flex-wrap: nowrap;
-    }
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
-    .column.is-narrow {
-      display: inline-block;
-      width: 320px;
-      vertical-align: top;
-      margin: 10px;
-    }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-    .column video {
-      width: 100%; /* Responsive video sizing */
-      height: auto; /* Maintain aspect ratio */
-      border: 1px solid #bbb; /* Optional border */
-      border-radius: 10px; /* Rounded corners */
-    }
-  </style>
-
-  <script src="https://www.youtube.com/iframe_api"></script>
+  <link rel="stylesheet" href="static/css/e2hil.css" />
 </head>
-
-
 <body>
-  <section class="hero">
-    <div class="hero-body">
-      <div class="container">
-        <div class="columns is-centered">
-          <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title" style="display: flex; align-items: left; justify-content: center; flex-wrap: wrap; text-align: center;">
-              <span>E2HiL: Entropy-Guided Sample Selection for Efficient Real-World Human-in-the-Loop Reinforcement Learning</span>
-            </h1>          
-            <!-- <div class="is-size-5 publication-authors">
-              <span class="author-block">
-                <a href=""></a>&nbsp;&nbsp;
-                <a href=""><sup>*</sup></a>&nbsp;&nbsp;
-                <a href=""></a>&nbsp;&nbsp;
-                <a href=""></a>&nbsp;&nbsp;
-                <a href=""><sup>†</sup></a>&nbsp;&nbsp;
-                <a href=""></a>
-              </span>
-            </div> -->
-            <!-- <div class="column">
-                <image src="./static/images/logo1.png" style="width: 40%;"></image>
-            </div> -->
-            <!-- <div class="is-size-4 publication-authors">
-              
-            </div> -->
-            <!-- <div class="is-size-4 publication-authors">
-              <b style="color:rgb(255, 100, 100);">Best Systems Paper Award Finalist (top 3)</b>
-            </div> -->
-            <div class="column has-text-centered">
-              <div class="publication-links">
-                <!-- PDF Link. -->
-                <span class="link-block">
-                  <a href="./resources/main_n__Stabilizing_Human_in_the_Loop_Reinforcement_Learning_through_Entropy_Bounded_Sample_Selection_5.pdf"
-                    class="external-link button is-normal is-rounded is-dark" target="_blank">
-                    <span class="icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </span>
-                    <span>Paper</span>
-                  </a>
-                </span>
-                <!-- arXiv Link. -->
-                <!-- <span class="link-block">
-                  <a href="#"
-                    class="external-link button is-normal is-rounded is-dark" target="_blank">
-                    <span class="icon">
-                        <i class="ai ai-arxiv"></i>
-                    </span>
-                    <span>arXiv</span>
-                  </a>
-                </span> -->
-                <!-- Video Link. -->
-                <!-- <span class="link-block">
-                  <a href="#"
-                    class="external-link button is-normal is-rounded is-dark" target="_blank">
-                    <span class="icon">
-                        <i class="fab fa-youtube"></i>
-                    </span>
-                    <span>Video</span>
-                  </a>
-                </span> -->
-                <!-- Code Link. https://github.com/E2HiL/E2HiL-project-->
-                <span class="link-block">
-                  <a href="https://github.com/E2HiL/E2HiL-project-a1x" class="external-link button is-normal is-rounded is-dark" target="_blank">
-                    <span class="icon">
-                        <svg class="svg-inline--fa fa-github fa-w-16" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" data-fa-i2svg=""><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg><!-- <i class="fab fa-github"></i> Font Awesome fontawesome.com -->
-                    </span>
-                    <span>Code-A1_X</span>
-                  </a>
-                </span>
-                <!-- Code Link. https://github.com/E2HiL/E2HiL-project-->
-                <span class="link-block">
-                  <a href="https://github.com/E2HiL/E2HiL-project-lerobo" class="external-link button is-normal is-rounded is-dark" target="_blank">
-                    <span class="icon">
-                        <svg class="svg-inline--fa fa-github fa-w-16" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" data-fa-i2svg=""><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg><!-- <i class="fab fa-github"></i> Font Awesome fontawesome.com -->
-                    </span>
-                    <span>Code-Lerobot</span>
-                  </a>
-                </span>
-                <!-- Appendix Link. -->
-                <span class="link-block">
-                  <a href="./resources/Appendix.pdf"
-                    class="external-link button is-normal is-rounded is-dark" target="_blank">
-                    <span class="icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </span>
-                    <span>Appendix</span>
-                  </a>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+
+  <!-- ===================== NAV ===================== -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="#top">
+        <span class="brand-mark">E2HiL
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="#abstract">Abstract</a>
+        <a href="#video">Video</a>
+        <a href="#method">Method</a>
+        <a href="#tasks">Tasks</a>
+        <a href="#a1x">A1_X</a>
+        <a href="#bibtex">BibTeX</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <header class="hero" id="top">
+    <div class="hero-glow"></div>
+    <div class="hero-grid"></div>
+    <div class="container hero-content">
+      <span class="badge reveal"><span class="badge-dot"></span> Accepted to IEEE Robotics and Automation Letters (RA-L) 2026</span>
+
+      <h1 class="hero-title reveal">
+        <span class="grad">E2HiL</span>
+      </h1>
+      <p class="hero-subtitle reveal">
+        Entropy-Guided Sample Selection for Efficient Real-World Human-in-the-Loop Reinforcement Learning
+      </p>
+      <p class="hero-tagline reveal">
+        A <strong>sample-efficient</strong> real-world human-in-the-loop RL framework that actively selects
+        informative samples through <strong>entropy-guided influence functions</strong> &mdash; achieving higher
+        success while requiring far fewer human interventions.
+      </p>
+
+      <!-- Authors -->
+      <div class="authors reveal">
+        <a class="author" href="https://denghaoyuan123.github.io/" target="_blank" rel="noopener">Haoyuan Deng<sup>1</sup></a>,
+        <span class="author">Yudong Lin<sup>1</sup></span>,
+        <span class="author">Yuanjiang Xue<sup>1</sup></span>,
+        <span class="author">Haoyang Du<sup>1</sup></span>,
+        <span class="author">Qianzhun Wang<sup>1</sup></span>,
+        <span class="author">Boyang Zhou<sup>1</sup></span>,
+        <a class="author" href="https://scholar.google.com/citations?user=ohn8IjAAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Zhenyu Wu<sup>2</sup></a>,
+        <a class="author" href="https://ziweiwangthu.github.io/" target="_blank" rel="noopener">Ziwei Wang<sup>1,&#9993;</sup></a>
+      </div>
+      <div class="affil reveal">
+        <sup>1</sup>School of Electrical and Electronic Engineering, Nanyang Technological University, Singapore
+        <span class="affil-sep">&nbsp;&nbsp;</span>
+        <sup>2</sup>Beijing University of Posts and Telecommunications, China
+      </div>
+      <div class="affil-note reveal"><span class="corr">&#9993;</span>&nbsp;Corresponding author</div>
+
+      <!-- Links -->
+      <div class="hero-buttons reveal">
+        <a class="btn btn-primary" href="resources/E2HiL_Entropy-Guided_Sample_Selection_for_Efficient_Real-World_Human-in-the-Loop_Reinforcement_Learning.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M6 2h9l5 5v15a0 0 0 0 1 0 0H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M14 2v6h6" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+          Paper
+        </a>
+        <a class="btn btn-dark" href="https://ieeexplore.ieee.org/abstract/document/11520247" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M14 3h7v7M21 3l-9 9M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          IEEE Xplore
+        </a>
+        <a class="btn btn-dark" href="https://github.com/E2HiL/E2HiL-project-a1x" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M12 1.5A10.5 10.5 0 0 0 8.7 22c.5.1.7-.2.7-.5v-2c-2.9.6-3.5-1.2-3.5-1.2-.5-1.2-1.2-1.5-1.2-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .8.1-.6.4-1.1.6-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7.7.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z" fill="currentColor"/></svg>
+          Code &middot; A1_X
+        </a>
+        <a class="btn btn-dark" href="https://github.com/E2HiL/E2HiL-project-lerobo" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M12 1.5A10.5 10.5 0 0 0 8.7 22c.5.1.7-.2.7-.5v-2c-2.9.6-3.5-1.2-3.5-1.2-.5-1.2-1.2-1.5-1.2-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .8.1-.6.4-1.1.6-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7.7.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z" fill="currentColor"/></svg>
+          Code &middot; LeRobot
+        </a>
+        <a class="btn btn-dark" href="resources/Appendix.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M6 2h9l5 5v15a0 0 0 0 1 0 0H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 13h8M8 17h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          Appendix
+        </a>
+        <a class="btn btn-accent" href="https://www.youtube.com/watch?v=7Vy_H5zIVCo" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+          Video
+        </a>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- ===================== STATS =====================
+  <section class="stats-band">
+    <div class="container stats-grid">
+      <div class="stat reveal">
+        <div class="stat-num">+42.1<span>%</span></div>
+        <div class="stat-label">Higher success rate<br/>vs. SOTA HiL-RL</div>
+      </div>
+      <div class="stat reveal">
+        <div class="stat-num">&minus;10.1<span>%</span></div>
+        <div class="stat-label">Fewer human<br/>interventions</div>
+      </div>
+      <div class="stat reveal">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Real-world<br/>online RL tasks</div>
+      </div>
+      <div class="stat reveal">
+        <div class="stat-num">~1<span>h</span></div>
+        <div class="stat-label">Avg. training<br/>time per task</div>
+      </div>
+      <div class="stat reveal">
+        <div class="stat-num">6</div>
+        <div class="stat-label">New A1_X<br/>manipulation tasks</div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- ===================== ABSTRACT ===================== -->
+  <section class="section abstract-section" id="abstract">
+    <div class="container abstract-wrap">
+      <div class="abstract-copy">
+        <h2 class="section-title"><span class="kicker">01</span> Abstract</h2>
+        <figure class="teaser-figure reveal">
+          <img src="resources/method/teaser1201.png" alt="E2HiL overview teaser" loading="lazy" />
+          <figcaption>
+            <strong>E2HiL</strong> reduces the human effort in human-in-the-loop RL by actively selecting
+            informative samples &mdash; pruning shortcut and noisy transitions for stable policy-entropy reduction
+            and higher sample efficiency on real-world manipulation.
+          </figcaption>
+        </figure>
+        <p class="lead">
+          Human-in-the-loop guidance has emerged as an effective approach for enabling faster convergence in
+          online reinforcement learning (RL) of complex real-world manipulation tasks. However, existing
+          human-in-the-loop RL (HiL-RL) frameworks often suffer from low sample efficiency, requiring substantial
+          human interventions to achieve convergence and thereby leading to high labor costs.
+        </p>
+        <p>
+          To address this, we propose a sample-efficient real-world human-in-the-loop RL framework named
+          <strong>E2HiL</strong>, which requires fewer human intervention by actively selecting informative
+          samples. Specifically, stable reduction of policy entropy enables improved trade-off between
+          exploration and exploitation with higher sample efficiency. We first build
+          <strong>influence functions</strong> of different samples on the policy entropy, which is efficiently
+          estimated by the covariance of action probabilities and soft advantages of policies. Then we select
+          samples with moderate values of influence functions, where shortcut samples that induce sharp entropy
+          drops and noisy samples with negligible effect are pruned.
+        </p>
+        <p>
+          Extensive experiments on four real-world manipulation tasks demonstrate that E2HiL achieves a
+          <strong>42.1% higher success rate</strong> while requiring <strong>10.1% fewer human interventions</strong>
+          compared to the state-of-the-art HiL-RL method, validating its effectiveness.
+        </p>
       </div>
     </div>
   </section>
 
+  <!-- ===================== VIDEO ===================== -->
+  <section class="section section-alt" id="video">
+    <div class="container narrow">
+      <h2 class="section-title center"><span class="kicker">02</span> Overview Video</h2>
+      <p class="section-sub center">A walkthrough of E2HiL and its entropy-guided sample selection on real-world manipulation tasks.</p>
+      <div class="video-embed reveal">
+        <iframe src="https://www.youtube.com/embed/7Vy_H5zIVCo"
+          title="E2HiL video" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
 
-<section class="section">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-full-width is-centered has-text-centered">
-        <!-- <h2 class="title is-2" style="text-align: center;" id="method-video" >Real-World Robot Parkour Demos</h2> -->
-        <div class="publication-video">
-            <iframe src="https://www.youtube.com/embed/7Vy_H5zIVCo" title="E2HiL"
-        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <!-- ===================== METHOD ===================== -->
+  <section class="section" id="method">
+    <div class="container">
+      <h2 class="section-title"><span class="kicker">03</span> How E2HiL Works</h2>
+      <p class="section-sub">
+        E2HiL characterizes the entropy dynamics induced by each sample and prunes the extremes &mdash; keeping
+        the informative middle so that policy entropy decreases stably and the policy converges with fewer
+        human corrections.
+      </p>
+
+      <div class="component-grid">
+        <div class="comp-card reveal">
+          <div class="comp-num">1</div>
+          <h3>Sample Entropy Dynamics Estimation</h3>
+          <p>
+            We characterize the entropy dynamics induced by each sample through <strong>influence functions</strong>
+            on the policy entropy, efficiently estimated by the covariance of action probabilities and soft
+            advantages of the policy &mdash; no expensive re-training required.
+          </p>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section class="section">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-full-width is-centered has-text-centered">
-        <img src="./resources/method/teaser1201.png" alt="Full Width Image" style="width: 60%;" />
-      </div>
-    </div>
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-two-thirds">
-        <h2 class="title is-2">Abstract</h2>
-        <div class="content has-text-justified">
+        <div class="comp-card reveal">
+          <div class="comp-num">2</div>
+          <h3>Entropy-Bounded Sample Selection</h3>
           <p>
-            Human-in-the-loop guidance has emerged as an effective approach for enabling faster convergence in online reinforcement learning (RL) of complex real-world manipulation tasks. However, existing human-in-the-loop RL (HiL-RL) frameworks often suffer from low sample efficiency, requiring substantial human interventions to achieve convergence and thereby leading to high labor costs. To address this, we propose a sample-efficient real-world human-in-the-loop RL framework named \method, which requires fewer human intervention by actively selecting informative samples. Specifically, stable reduction of policy entropy enables improved trade-off between exploration and exploitation with higher sample efficiency. We first build influence functions of different samples on the policy entropy, which is efficiently estimated by the covariance of action probabilities and soft advantages of policies. Then we select samples with moderate values of influence functions, where shortcut samples that induce sharp entropy drops and noisy samples with negligible effect are pruned. Extensive experiments on four real-world manipulation tasks demonstrate that \method achieves a 42.1\% higher success rate while requiring 10.1\% fewer human interventions compared to the state-of-the-art HiL-RL method, validating its effectiveness.        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <h2 class="title is-2" style="text-align: center;">Method</h2>
-    <!-- <h2 class="title is-4" style="text-align: center;">Overall Pipeline</h2> -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-two-thirds">
-        <div class="content has-text-justified">
-          <p>
-            Entropy-Guided Sample Selection Framework. Our framework consists of two key components: Sample Entropy Dynamics Estimation, where we characterizes the entropy dynamics induced by each sample, and Entropy-Bounded Sample Selection, where we prune shortcut and noisy samples by constraining their influence value within dynamic bounds.
+            We keep samples with <strong>moderate influence</strong> and prune the extremes: shortcut samples that
+            trigger sharp entropy drops and noisy samples with negligible effect, constraining the influence
+            value within dynamic bounds for stable entropy reduction.
           </p>
         </div>
       </div>
-    </div>
-    <!-- Image row 1: Full width image -->
-    <div class="columns is-centered">
-      <div class="column is-four-fifths is-centered has-text-centered">
-        <img src="./resources/method/pipeline.png" alt="Full Width Image" style="width: 100%;" />
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="section">
-  <div class="container">
-    <h2 class="title is-2" style="text-align: center;">Real-world Online RL Tasks</h2>
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-two-thirds">
-        <div class="content has-text-justified">
-        <p>
-          The real-world experiments are performed in a tabletop setup with objects randomized in location every episode. E2HiL is capable of executing four complex real-world manipulation tasks, requiring an average training time of only about one hour.
-        </p>
-        </div>
-      </div>
+      <figure class="figure-card reveal" style="margin-top: 30px;">
+        <img src="resources/method/pipeline.png" alt="E2HiL method pipeline" loading="lazy" />
+        <figcaption>
+          <strong>Entropy-Guided Sample Selection framework.</strong>
+          Sample Entropy Dynamics Estimation characterizes the entropy dynamics induced by each sample;
+          Entropy-Bounded Sample Selection prunes shortcut and noisy samples by constraining their influence
+          value within dynamic bounds.
+        </figcaption>
+      </figure>
     </div>
-    <!-- Row 1 -->
-    <div class="columns is-centered">
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Touch Cube</h3>
-        <video controls autoplay loop muted playsinline src="./resources/real_demo/touchcube.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Pick & Place Cube</h3>
-        <video controls autoplay loop muted playsinline src="./resources/real_demo/pickandplace.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-    </div>
-    <!-- Row 2 -->
-    <div class="columns is-centered">
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Pick up Cube</h3>
-        <video controls autoplay loop muted playsinline src="./resources/real_demo/pick_up_cube.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Stack Blocks</h3>
-        <video controls autoplay loop muted playsinline src="./resources/real_demo/stack_blocks.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<section class="section">
-  <div class="container">
-    <h2 class="title is-2" style="text-align: center;">A1_X New Tasks</h2>
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-two-thirds">
-        <div class="content has-text-justified">
-        <p>
-          We further evaluate E2HiL on a new set of A1_X manipulation tasks, covering object picking, insertion, folding, wiping, and toaster interaction behaviors.
-        </p>
-        </div>
-      </div>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Pick Banana</h3>
-        <video controls autoplay loop muted playsinline src="./resources/a1_x_demo/pick banana.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Insertion</h3>
-        <video controls autoplay loop muted playsinline src="./resources/a1_x_demo/insertion1.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Fold</h3>
-        <video controls autoplay loop muted playsinline src="./resources/a1_x_demo/fold.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Wipe</h3>
-        <video controls autoplay loop muted playsinline src="./resources/a1_x_demo/wipe.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Open Toaster</h3>
-        <video controls autoplay loop muted playsinline src="./resources/a1_x_demo/open toaster.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-      <div class="column is-one-second has-text-centered">
-        <h3 class="video-title">Toast</h3>
-        <video controls autoplay loop muted playsinline src="./resources/a1_x_demo/toast.mp4" poster="./resources/loading-icon.gif" style="border: 1px solid #bbb; border-radius: 10px; margin: 1.0%;"></video>
-      </div>
-    </div>
-  </div>
-</section>
+  <!-- ===================== REAL-WORLD TASKS ===================== -->
+  <section class="section section-alt" id="tasks">
+    <div class="container">
+      <h2 class="section-title"><span class="kicker">04</span> Real-World Online RL Tasks on Lerobot SO-101</h2>
+      <p class="section-sub">
+        Performed on a tabletop setup with objects randomized in location every episode. E2HiL learns four
+        complex real-world manipulation tasks with an average training time of only about one hour.
+      </p>
 
-<!-- <section class="section">
-  <div class="container">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-two-thirds">
-        <h2 class="title is-2">Acknowledgement</h2>
-        <div class="content has-text-justified">
-          <p>
-                  </div>
+      <div class="demo-grid cols-2">
+        <figure class="video-card reveal">
+          <video src="resources/real_demo/touchcube.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-reach">Reaching</span> Touch Cube</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/real_demo/pickandplace.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-pick">Pick-Place</span> Pick &amp; Place Cube</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/real_demo/pick_up_cube.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-pick">Grasping</span> Pick up Cube</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/real_demo/stack_blocks.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-contact">Stacking</span> Stack Blocks</figcaption>
+        </figure>
       </div>
     </div>
-  </div>
-</section> -->
+  </section>
 
-<section class="section" id="BibTeX">
-  <div class="container content">
-    <h2 class="titile">BibTeX</h2>
-    <!-- <pre><code>@article{,
-  title={E2HiL: Entropy-Guided Sample Selection for Efficient Real-World Human-in-the-Loop Reinforcement Learning},
-  author={},
-  journal={},
-  year={2025}
-}</code></pre> -->
-  </div>
-</section>
+  <!-- ===================== A1_X NEW TASKS ===================== -->
+  <section class="section" id="a1x">
+    <div class="container">
+      <h2 class="section-title"><span class="kicker">05</span> Real-World Online RL Tasks on A1_X</h2>
+      <p class="section-sub">
+        We further evaluate E2HiL on the A1_X platform across a new task set &mdash; spanning object picking,
+        contact-rich insertion, deformable folding, surface wiping, and articulated toaster interaction.
+      </p>
 
-<footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <p>Page template borrowed from <a href="https://nerfies.github.io/"><span class="dnerf">Nerfies</span></a> and <a href="https://manipulation-locomotion.github.io/"><span class="dnerf">Deep-Whole-Body-Control</span></a>.</p>
+      <div class="demo-grid">
+        <figure class="video-card reveal">
+          <video src="resources/a1_x_demo/pick%20banana.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-pick">Grasping</span> Pick Banana</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/a1_x_demo/insertion1.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-contact">Contact-rich</span> Insertion</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/a1_x_demo/fold.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-deform">Deformable</span> Fold</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/a1_x_demo/wipe.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-contact">Contact-rich</span> Wipe</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/a1_x_demo/open%20toaster.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-artic">Articulated</span> Open Toaster</figcaption>
+        </figure>
+        <figure class="video-card reveal">
+          <video src="resources/a1_x_demo/toast.mp4" poster="resources/loading-icon.gif" muted loop playsinline preload="none" data-lazy></video>
+          <figcaption><span class="tag tag-long">Long-horizon</span> Toast</figcaption>
+        </figure>
+      </div>
     </div>
-  </div>
-</footer>
+  </section>
 
-<script>
-  window.addEventListener('scroll', function() {
-    if (window.pageYOffset > 50) { // Check if the page is scrolled down by 50px
-      document.getElementById('cover-image').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-    }
-  });
-</script>
+  <!-- ===================== BIBTEX ===================== -->
+  <section class="section section-alt" id="bibtex">
+    <div class="container narrow">
+      <h2 class="section-title"><span class="kicker">06</span> BibTeX</h2>
+      <div class="bibtex-wrap reveal">
+        <button class="copy-btn" id="copyBib">Copy</button>
+        <pre id="bibText">@article{deng2026e2hil,
+  title   = {E2HiL: Entropy-Guided Sample Selection for Efficient
+             Real-World Human-in-the-Loop Reinforcement Learning},
+  author  = {Deng, Haoyuan and Lin, Yudong and Xue, Yuanjiang and
+             Du, Haoyang and Wang, Qianzhun and Zhou, Boyang and
+             Wu, Zhenyu and Wang, Ziwei},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {11},
+  number  = {7},
+  pages   = {8084--8091},
+  year    = {2026},
+  doi     = {10.1109/LRA.2026.3693577}
+}</pre>
+      </div>
+    </div>
+  </section>
 
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <p>
+        <strong>E2HiL</strong> &mdash; published in <em>IEEE Robotics and Automation Letters</em> (RA-L), 2026.
+      </p>
+      <p class="muted">
+        Page template inspired by <a href="https://nerfies.github.io/" target="_blank" rel="noopener">Nerfies</a>
+        and <a href="https://manipulation-locomotion.github.io/" target="_blank" rel="noopener">Deep-Whole-Body-Control</a>.
+        This page reuses media from the paper and supplementary material.
+      </p>
+    </div>
+  </footer>
+
+  <script src="static/js/e2hil.js"></script>
 </body>
 </html>
